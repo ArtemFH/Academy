@@ -1,0 +1,33 @@
+stages:
+    - deploy
+
+before_script:
+    - COMPOSE_DIR="/home/$(whoami)/${CI_PROJECT_PATH}";
+    - mkdir -p "${COMPOSE_DIR}";
+    - rsync "${CI_PROJECT_DIR}/" "${COMPOSE_DIR}/"
+        -r
+        --delete
+        --exclude /.git
+        --exclude /.env
+        --exclude /.gitignore
+        --exclude /.gitlab
+        --exclude /.docker;
+    - export CONTAINERS_PREFIX="${CI_PROJECT_PATH////-}";
+    - cd "${COMPOSE_DIR}";
+    - >
+        COMPOSE_FILE="docker-compose.yml";
+        if [[ -f docker-compose.deploy.yml ]]; then
+            COMPOSE_FILE="${COMPOSE_FILE}:docker-compose.deploy.yml";
+        fi;
+        echo "COMPOSE_FILE=${COMPOSE_FILE}" > .env;
+        echo "COMPOSE_PROJECT_NAME=${CI_PROJECT_PATH////_}" >> .env;
+    - docker-compose config -q;
+
+deploy:
+    tags:
+        - deploy
+    stage: deploy
+    only:
+        - master
+    script:
+        - docker-compose up --build -d;

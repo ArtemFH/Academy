@@ -1,0 +1,35 @@
+version: '3.7'
+
+networks:
+  external-academy:
+    external:
+      name: external-academy
+  api2:
+    driver: bridge
+
+services:
+
+  backend:
+    environment:
+      APP_DEBUG: 'true'
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: postgres
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      JWT_SECRET: YXn84lpb48qfl40xFrgPejhSTaptq4E1OyzutVOoc0aeUpp9OwPvN7X2TH7q0Zjt
+    networks:
+      external-academy:
+        aliases:
+          - artem-bereza-api2-backend-alias
+      api2: { }
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    networks:
+      - api2

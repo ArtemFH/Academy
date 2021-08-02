@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+
+  backend:
+    depends_on:
+      - postgres
+    build:
+      context: ./backend
+    environment:
+      WAIT_HOSTS: postgres:5432
+
+  postgres:
+    image: postgres
